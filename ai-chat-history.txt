@@ -1,0 +1,183 @@
+AI ASSISTANCE HISTORY
+=====================
+
+Project: Smart Parking Lot Rate Calculator
+Purpose: Coding assignment for Sahaj
+
+1. Problem Understanding
+------------------------
+Reviewed the parking-rate requirements and identified the main domain concepts:
+
+- ParkingSession
+- VehicleType
+- LoyaltyTier
+- Standard Hourly pricing
+- Early Bird pricing
+- Night Owl pricing
+- Peak-hour pricing
+- Vehicle multipliers
+- Loyalty discounts
+- Best-value policy selection
+
+The implementation was designed as a small, platform-agnostic Python application.
+
+2. Design Approach
+-------------------
+Used a policy-based design to separate pricing rules.
+
+Main abstraction:
+
+    PricingPolicy
+        |
+        +-- StandardHourlyPolicy
+        +-- EarlyBirdPolicy
+        +-- NightOwlPolicy
+
+ParkingRateCalculator evaluates all applicable policies and returns
+the minimum valid fare.
+
+Reusable pricing concerns such as vehicle multipliers, loyalty
+discounts, and peak-hour detection remain separated from the
+individual pricing policies.
+
+The design intentionally avoids unnecessary frameworks, databases,
+APIs, or infrastructure because they are outside the assignment scope.
+
+3. Domain Models
+----------------
+Implemented domain models for:
+
+- VehicleType
+- LoyaltyTier
+- ParkingSession
+
+ParkingSession validates that the exit timestamp occurs after the
+entry timestamp.
+
+4. Pricing Components
+---------------------
+Implemented reusable components for:
+
+- Vehicle-specific pricing multipliers
+- Loyalty discounts
+- Peak-hour detection
+
+Decimal was used for monetary calculations to avoid floating-point
+precision issues.
+
+5. Standard Hourly Policy
+-------------------------
+Implemented progressive hourly pricing:
+
+- First hour: $5
+- Second hour: $3
+- Subsequent hours: $2
+
+Partial hours are rounded up.
+
+Hourly blocks start from the exact parking entry timestamp.
+
+Each hourly block is evaluated independently for peak-hour overlap.
+
+Weekday peak windows:
+
+- 07:00-10:00
+- 16:00-19:00
+
+Peak multiplier:
+
+- 1.5x
+
+The assignment example was explicitly tested:
+
+06:30 -> 08:30 = $12.00
+
+6. Special Policies
+--------------------
+Implemented Early Bird:
+
+- Entry: 06:00 inclusive to 09:00 exclusive
+- Exit: 15:30 inclusive to 19:00 exclusive
+- Same calendar day
+- Maximum 24-hour stay
+- Base fare: $15
+
+Implemented Night Owl:
+
+- Entry: 18:00 inclusive to midnight
+- Exit: 05:00 inclusive to 10:00 exclusive
+  on the following calendar day
+- Maximum 24-hour stay
+- Base fare: $8
+
+Vehicle multipliers and loyalty discounts are applied to special
+policy fares.
+
+7. Best Value Logic
+-------------------
+Implemented ParkingRateCalculator to:
+
+1. Evaluate every configured pricing policy.
+2. Ignore policies that are not applicable.
+3. Select the minimum valid fare.
+
+The calculator accepts an optional list of policies, making it easier
+to test and extend without modifying the calculator itself.
+
+8. Testing and Debugging
+------------------------
+Created automated pytest coverage for:
+
+- Domain validation
+- Progressive hourly rates
+- Partial-hour rounding
+- Peak-hour overlap
+- Peak-hour boundaries
+- Weekend behavior
+- Vehicle multipliers
+- Loyalty discounts
+- Early Bird boundaries
+- Night Owl boundaries
+- More-than-24-hour restrictions
+- Best-value policy selection
+
+During validation, one calculator test incorrectly expected $53 for a
+25-hour session. The pricing calculation was reviewed block-by-block
+and determined to be $60 because six hourly blocks overlapped weekday
+peak periods. The test expectation was corrected to $60.
+
+Final validation:
+
+    50 passed
+
+9. Engineering Assumptions
+---------------------------
+The assignment specifies public-holiday exclusions from peak pricing
+but does not provide a holiday calendar or data source.
+
+Therefore, the implementation treats Monday-Friday as weekdays and
+Saturday-Sunday as non-peak days. No external holiday dependency was
+introduced.
+
+Timestamps are treated as local parking-lot timestamps because the
+assignment does not define timezone conversion requirements.
+
+10. AI Assistance
+-----------------
+AI assistance was used for:
+
+- Interpreting the assignment requirements
+- Discussing the domain model and policy-based design
+- Generating initial implementation suggestions
+- Generating and expanding automated tests
+- Debugging test failures
+- Reviewing edge cases and boundary conditions
+- Reviewing code organization and maintainability
+- Drafting project documentation
+
+All generated implementation was reviewed, executed locally, and
+validated using pytest.
+
+Final result:
+
+    50 automated tests passing
